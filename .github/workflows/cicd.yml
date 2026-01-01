@@ -125,7 +125,7 @@ jobs:
         file: ./Dockerfile
 
 # ------------------------------------------------------------------
-# DEPLOY TO KUBERNETES – COMMENTED
+# DEPLOY TO KUBERNETES – COMMENTEDV
 # ------------------------------------------------------------------
 
 #  deploy_to_kubernetes:
