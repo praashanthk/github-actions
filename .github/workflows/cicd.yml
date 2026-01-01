@@ -66,6 +66,7 @@ jobs:
         cache: maven
     - name: Build Project
       run: mvn package
+
     - name: Upload JAR artifact
       uses: actions/upload-artifact@v4
       with:
@@ -91,46 +92,48 @@ jobs:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
 
+  buils_docker_image_and_push:
+    runs-on: self-hosted
+    needs: build_project_and_sonar_scan
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Download JAR artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: app-jar
+        path: app
+        
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ vars.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Build and Push Docker image
+      uses: docker/build-push-action@v6
+      with:
+        context: .
+        push: true
+        tags: adijaiswal/bankapp:latest
+        file: ./Dockerfile
+
 # ------------------------------------------------------------------
-# EVERYTHING BELOW IS COMMENTED (POST-SONAR)
+# DEPLOY TO KUBERNETES – COMMENTED
 # ------------------------------------------------------------------
 
-#  buils_docker_image_and_push:
-#    runs-on: self-hosted
-#    needs: build_project_and_sonar_scan
-#    steps:
-#    - uses: actions/checkout@v4
-#    - name: Download JAR artifact
-#      uses: actions/download-artifact@v4
-#      with:
-#        name: app-jar
-#        path: app
-#        
-#    - name: Login to Docker Hub
-#      uses: docker/login-action@v3
-#      with:
-#        username: ${{ vars.DOCKERHUB_USERNAME }}
-#        password: ${{ secrets.DOCKERHUB_TOKEN }}
-#
-#    - name: Set up QEMU
-#      uses: docker/setup-qemu-action@v3
-#
-#    - name: Set up Docker Buildx
-#      uses: docker/setup-buildx-action@v3
-#
-#    - name: Build and Push Docker image
-#      uses: docker/build-push-action@v6
-#      with:
-#        context: .
-#        push: true
-#        tags: adijaiswal/bankapp:latest
-#        file: ./Dockerfile
-#
 #  deploy_to_kubernetes:
 #    runs-on: self-hosted
 #    needs: buils_docker_image_and_push
 #    steps:
 #    - uses: actions/checkout@v4
+#
 #    - name: Install AWS CLI
 #      run: |
 #        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
