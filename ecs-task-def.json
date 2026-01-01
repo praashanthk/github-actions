@@ -1,0 +1,21 @@
+{
+  "family": "bankapp-task",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "arn:aws:iam::990607210925:role/ecsTaskExecutionRole",
+  "containerDefinitions": [
+    {
+      "name": "bankapp",
+      "image": "praashanth/bankapp:latest",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 8080,
+          "protocol": "tcp"
+        }
+      ]
+    }
+  ]
+}
